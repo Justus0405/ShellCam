@@ -39,34 +39,35 @@ shellcam-cli virtual start ~/Pictures/image.png
 ## Dependencies
 
 ```plaintext
-   v4l2loopback-dkms
-   ffmpeg
+v4l2loopback-dkms
+ffmpeg
 ```
 
 ## Installation
 
 1. Clone the repository:
 
-   ```shell
-   git clone https://github.com/Justus0405/ShellCam.git
-   ```
+```shell
+git clone https://github.com/Justus0405/ShellCam.git
+```
 
 2. Navigate to the directory:
 
-   ```shell
-   cd ShellCam
-   ```
+```shell
+cd ShellCam
+```
 
 3. Make the script executable:
 
-   ```shell
-   chmod +x shellcam-cli
-   ```
+```shell
+chmod +x shellcam-cli
+```
 
 4. Run the script with the install argument:
-   ```shell
-   ./shellcam-cli install
-   ```
+
+```shell
+./shellcam-cli install
+```
 
 ## Usage
 
