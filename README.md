@@ -26,7 +26,7 @@ This allows you, for example, to use your phone as a webcam. Just install the [I
    shellcam-cli remote start http://192.168.178.75:8080/video
 ```
 
-> [!INFO]
+> [!NOTE]
 > The `/video` part is important!
 > You can configure rotation, resolution, front or back camera, etc., inside the app. I suggest starting at 720p, depending on your wireless speed.
 
@@ -57,7 +57,13 @@ If you want to set a locally stored image or video as your camera, you can do it
    cd ShellCam
    ```
 
-3. Run the script with the install argument:
+3. Make the script executable:
+
+   ```shell
+   chmod +x shellcam-cli
+   ```
+
+4. Run the script with the install argument:
    ```shell
    ./shellcam-cli install
    ```
