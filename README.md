@@ -23,7 +23,7 @@ ShellCam is a simple command-line tool for Linux that lets you create a virtual 
 This allows you, for example, to use your phone as a webcam. Just install the [IP Webcam App](https://play.google.com/store/apps/details?id=com.pas.webcam), start the video stream, and use the address shown at the bottom like this:
 
 ```shell
-   shellcam-cli remote start http://192.168.178.75:8080/video
+shellcam-cli remote start http://192.168.178.75:8080/video
 ```
 
 > [!NOTE]
@@ -33,7 +33,7 @@ This allows you, for example, to use your phone as a webcam. Just install the [I
 If you want to set a locally stored image or video as your camera, you can do it like this:
 
 ```shell
-   shellcam-cli virtual start ~/Pictures/image.png
+shellcam-cli virtual start ~/Pictures/image.png
 ```
 
 ## Dependencies
