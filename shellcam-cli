@@ -126,9 +126,9 @@ uninstallScript() {
 }
 
 updateScript() {
-    # TODO: Github curl
-    logMessage "info" "Copying script to /usr/bin..."
-    sudo cp "$0" /usr/bin/
+    logMessage "info" "Downloading script..."
+    sudo curl -# -o /usr/bin/shellcam-cli https://raw.githubusercontent.com/Justus0405/ShellCam/main/shellcam-cli
+    sudo chmod +x /usr/bin/shellcam-cli
     logMessage "done" "Successfully updated $(basename "$0")"
 }
 
