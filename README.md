@@ -33,7 +33,7 @@ This allows you, for example, to use your phone as a webcam. Just install the [I
 If you want to set a locally stored image or video as your camera, you can do it like this:
 
 ```shell
-   shellcam-cli viurtal start ~/Pictures/image.png
+   shellcam-cli virtual start ~/Pictures/image.png
 ```
 
 ## Dependencies
