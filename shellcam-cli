@@ -127,7 +127,7 @@ uninstallScript() {
 
 updateScript() {
     logMessage "info" "Downloading script..."
-    sudo curl -# -o /usr/bin/shellcam-cli https://raw.githubusercontent.com/Justus0405/ShellCam/main/shellcam-cli
+    sudo curl -# -H 'Cache-Control: no-cache' -o /usr/bin/shellcam-cli https://raw.githubusercontent.com/Justus0405/ShellCam/main/shellcam-cli
     sudo chmod +x /usr/bin/shellcam-cli
     logMessage "done" "Successfully updated $(basename "$0")"
 }
