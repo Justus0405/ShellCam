@@ -144,7 +144,7 @@ remoteCamera() {
 
     if [ "${status}" == start ]; then
         checkRunning
-        logMessage "info" "Starfing connecting to remote camera..."
+        logMessage "info" "Starting connecting to remote camera..."
         ffmpeg -loglevel quiet -i "${cameraLink}" -f v4l2 -vcodec rawvideo -pix_fmt yuv420p /dev/video2 >/dev/null 2>&1 || {
             rm -f "/tmp/$(basename "$0")/.pid"
         } &
@@ -167,7 +167,7 @@ virtualCamera() {
 
     if [ "${status}" == start ]; then
         checkRunning
-        logMessage "info" "Starfing virtual camera..."
+        logMessage "info" "Starting virtual camera..."
         ffmpeg -re -stream_loop -1 -i "${filepath}" -f v4l2 -vcodec rawvideo -pix_fmt yuv420p /dev/video2 >/dev/null 2>&1 || {
             rm -f "/tmp/$(basename "$0")/.pid"
         } &
