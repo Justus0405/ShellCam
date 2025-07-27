@@ -1,0 +1,236 @@
+#!/usr/bin/env bash
+
+export scriptVersion="1.0"
+
+### COLOR CODES ###
+export RED="\e[1;31m"
+export GREEN="\e[1;32m"
+export YELLOW="\e[1;33m"
+export CYAN="\e[1;36m"
+export GRAY="\e[1;90m"
+export BOLD="\e[1m"
+export ENDCOLOR="\e[0m"
+
+### FUNCTIONS ###
+createEnvironment() {
+    mkdir -p "/tmp/$(basename "$0")/"
+}
+
+logMessage() {
+    local type=$1
+    local message=$2
+    case "${type}" in
+    "info" | "INFO")
+        echo -e "[  ${CYAN}INFO${ENDCOLOR}  ] ${message}"
+        ;;
+    "done" | "DONE")
+        echo -e "[  ${GREEN}DONE${ENDCOLOR}  ] ${message}"
+        ;;
+    "warning" | "WARNING")
+        echo -e "[ ${RED}FAILED${ENDCOLOR} ] ${message}"
+        ;;
+    "error" | "ERROR")
+        echo -e "[  ${RED}ERROR${ENDCOLOR} ] ${message}"
+        exit 1
+        ;;
+    *)
+        echo -e "[UNDEFINED] ${message}"
+        ;;
+    esac
+}
+
+checkArguments() {
+    case $1 in
+    "install")
+        installScript
+        ;;
+    "uninstall")
+        uninstallScript
+        ;;
+    "update")
+        updateScript
+        ;;
+    "remote")
+        remoteCamera "$@"
+        ;;
+    "virtual")
+        virtualCamera "$@"
+        ;;
+    "stop")
+        cameraStop
+        ;;
+    "status")
+        cameraStatus
+        ;;
+    "help")
+        printHelp
+        ;;
+    "version")
+        printVersion
+        ;;
+    "")
+        logMessage "error" "no operation specified. Use $(basename "$0") help"
+        exit 1
+        ;;
+    *)
+        logMessage "error" "unrecognized option '$1'. Use $(basename "$0") help"
+        exit 1
+        ;;
+    esac
+}
+
+installScript() {
+    # Moving script to /usr/bin
+    logMessage "info" "Copying script to /usr/bin..."
+    sudo cp "$0" /usr/bin/
+
+    # Kernel Module
+    logMessage "info" "Adding v4l2loopback module to load automatically..."
+    sudo tee "/etc/modules-load.d/v4l2loopback.conf" >/dev/null <<EOF
+v4l2loopback
+EOF
+
+    # Module Config
+    logMessage "info" "Creating VirtcameraLinkual Camera Device..."
+    sudo tee "/etc/modprobe.d/v4l2loopback.conf" >/dev/null <<EOF
+options v4l2loopback devices=1 video_nr=2 card_label="ShellCam" exclusive_caps=1
+EOF
+
+    # Done
+    logMessage "done" "Successfully installed $(basename "$0")"
+}
+
+uninstallScript() {
+    # Delete script from /usr/bin
+    logMessage "info" "Deleting script from /usr/bin..."
+    sudo rm "/usr/bin/$(basename "$0")"
+
+    # Kernel Module
+    logMessage "info" "Removing v4l2loopback module to load automatically..."
+    sudo rm "/etc/modules-load.d/v4l2loopback.conf"
+
+    # Module Config
+    logMessage "info" "Removing Virtual Camera Device..."
+    sudo rm "/etc/modprobe.d/v4l2loopback.conf"
+
+    # Unload the v4l2loopback module manually
+    logMessage "info" "Unloading v4l2loopback module..."
+    sudo modprobe -r v4l2loopback
+
+    # Delete cache
+    logMessage "info" "Deleting cache..."
+    rm "/tmp/$(basename "$0")"
+
+    # Done
+    logMessage "done" "Successfully uninstalled $(basename "$0")"
+}
+
+updateScript() {
+    # TODO: Github curl
+    logMessage "info" "Copying script to /usr/bin..."
+    sudo cp "$0" /usr/bin/
+    logMessage "done" "Successfully updated $(basename "$0")"
+}
+
+checkRunning() {
+    if [ -f "/tmp/$(basename "$0")/.pid" ]; then
+        logMessage "error" "A camera is already running."
+    fi
+}
+
+remoteCamera() {
+    local status="$2"
+    local cameraLink="$3"
+
+    if [ "${status}" == start ]; then
+        checkRunning
+        logMessage "info" "Starfing connecting to remote camera..."
+        ffmpeg -loglevel quiet -i "${cameraLink}" -f v4l2 -vcodec rawvideo -pix_fmt yuv420p /dev/video2 >/dev/null 2>&1 || {
+            rm -f "/tmp/$(basename "$0")/.pid"
+        } &
+        echo $! >"/tmp/$(basename "$0")/.pid"
+        logMessage "done" "Started remote camera"
+    fi
+
+    if [ "${status}" == stop ]; then
+        cameraStop
+    fi
+
+    if [ "${status}" == status ]; then
+        cameraStatus
+    fi
+}
+
+virtualCamera() {
+    local status="$2"
+    local filepath="$3"
+
+    if [ "${status}" == start ]; then
+        checkRunning
+        logMessage "info" "Starfing virtual camera..."
+        ffmpeg -re -stream_loop -1 -i "${filepath}" -f v4l2 -vcodec rawvideo -pix_fmt yuv420p /dev/video2 >/dev/null 2>&1 || {
+            rm -f "/tmp/$(basename "$0")/.pid"
+        } &
+        echo $! >"/tmp/$(basename "$0")/.pid"
+        logMessage "done" "Started virtual camera"
+    fi
+
+    if [ "${status}" == stop ]; then
+        cameraStop
+    fi
+
+    if [ "${status}" == status ]; then
+        cameraStatus
+    fi
+}
+
+cameraStop() {
+    logMessage "info" "Stopping camera..."
+    if [ -f "/tmp/$(basename "$0")/.pid" ]; then
+        if pkill -f "video2" 2>&1; then
+            logMessage "done" "Stopped camera"
+            rm -f "/tmp/$(basename "$0")/.pid"
+        else
+            logMessage "warning" "No PID associated with that process. Did the camera crash? Removing cache..."
+            rm -f "/tmp/$(basename "$0")/.pid"
+        fi
+    else
+        logMessage "error" "No Camera is running"
+    fi
+}
+
+cameraStatus() {
+    if [ -f "/tmp/$(basename "$0")/.pid" ]; then
+        pid=$(cat "/tmp/$(basename "$0")/.pid")
+        logMessage "info" "Camera is running with PID: $pid"
+    else
+        logMessage "info" "No Camera PID found. Camera is not running."
+    fi
+}
+
+printHelp() {
+    echo -e "usage: $(basename "$0") [...]"
+    echo -e "arguments:"
+    echo -e "\t install"
+    echo -e "\t uninstall"
+    echo -e "\t udpate"
+    echo -e "\t remote start URL"
+    echo -e "\t remote stop"
+    echo -e "\t virtual start FILEPATH"
+    echo -e "\t virtual stop"
+    echo -e "\t stop"
+    echo -e "\t status"
+    echo -e "\t help"
+    echo -e "\t version"
+    echo -e ""
+}
+
+printVersion() {
+    echo -e "               $(basename "$0") v$scriptVersion - GNU bash, version 5.3.3(1)-release"
+    echo -e "               Copyright (C) 2025-present Justus0405"
+    echo -e ""
+}
+
+### PROGRAM START ###
+createEnvironment
+checkArguments "$@"
