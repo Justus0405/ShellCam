@@ -125,11 +125,10 @@ uninstallScript() {
     logMessage "done" "Successfully uninstalled $(basename "$0")"
 }
 
-updateScript() {
-    logMessage "info" "Downloading script..."
-    sudo curl -# -H 'Cache-Control: no-cache' -o /usr/bin/shellcam-cli https://raw.githubusercontent.com/Justus0405/ShellCam/main/shellcam-cli
-    sudo chmod +x /usr/bin/shellcam-cli
-    logMessage "done" "Successfully updated $(basename "$0")"
+checkInstalled() {
+    if [ ! -f "/etc/modprobe.d/v4l2loopback.conf" ]; then
+        logMessage "error" "$(basename "$0") is not installed, do $(basename "$0") install"
+    fi
 }
 
 checkRunning() {
@@ -138,9 +137,42 @@ checkRunning() {
     fi
 }
 
+checkInput() {
+    local input="$1"
+    case "${input}" in
+    "start")
+        return
+        ;;
+    "stop")
+        return
+        ;;
+    "status")
+        return
+        ;;
+    "")
+        logMessage "error" "no operation specified. Use $(basename "$0") help"
+        exit 1
+        ;;
+    *)
+        logMessage "error" "unrecognized option '$1'. Use $(basename "$0") help"
+        exit 1
+        ;;
+    esac
+}
+
+updateScript() {
+    checkInstalled
+    logMessage "info" "Downloading script..."
+    sudo curl -# -H 'Cache-Control: no-cache' -o /usr/bin/shellcam-cli https://raw.githubusercontent.com/Justus0405/ShellCam/main/shellcam-cli
+    sudo chmod +x /usr/bin/shellcam-cli
+    logMessage "done" "Successfully updated $(basename "$0")"
+}
+
 remoteCamera() {
+    checkInstalled
     local status="$2"
     local cameraLink="$3"
+    checkInput "$status"
 
     if [ "${status}" == start ]; then
         checkRunning
@@ -162,8 +194,10 @@ remoteCamera() {
 }
 
 virtualCamera() {
+    checkInstalled
     local status="$2"
     local filepath="$3"
+    checkInput "$status"
 
     if [ "${status}" == start ]; then
         checkRunning
@@ -185,6 +219,7 @@ virtualCamera() {
 }
 
 cameraStop() {
+    checkInstalled
     logMessage "info" "Stopping camera..."
     if [ -f "/tmp/$(basename "$0")/.pid" ]; then
         if pkill -f "video2" 2>&1; then
@@ -200,6 +235,7 @@ cameraStop() {
 }
 
 cameraStatus() {
+    checkInstalled
     if [ -f "/tmp/$(basename "$0")/.pid" ]; then
         pid=$(cat "/tmp/$(basename "$0")/.pid")
         logMessage "info" "Camera is running with PID: $pid"
