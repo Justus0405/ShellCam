@@ -262,7 +262,7 @@ printHelp() {
 }
 
 printVersion() {
-    echo -e "               $(basename "$0") v$scriptVersion - GNU bash, version 5.3.3(1)-release"
+    echo -e "               $(basename "$0") v${scriptVersion} - GNU bash, version 5.3"
     echo -e "               Copyright (C) 2025-present Justus0405"
     echo -e ""
 }
