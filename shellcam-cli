@@ -25,6 +25,7 @@ logMessage() {
         ;;
     "done" | "DONE")
         echo -e "[  ${GREEN}DONE${ENDCOLOR}  ] ${message}"
+        exit 0
         ;;
     "warning" | "WARNING")
         echo -e "[ ${RED}FAILED${ENDCOLOR} ] ${message}"
@@ -70,11 +71,9 @@ checkArguments() {
         ;;
     "")
         logMessage "error" "no operation specified. Use $(basename "$0") help"
-        exit 1
         ;;
     *)
         logMessage "error" "unrecognized option '$1'. Use $(basename "$0") help"
-        exit 1
         ;;
     esac
 }
@@ -151,11 +150,9 @@ checkInput() {
         ;;
     "")
         logMessage "error" "no operation specified. Use $(basename "$0") help"
-        exit 1
         ;;
     *)
         logMessage "error" "unrecognized option '$1'. Use $(basename "$0") help"
-        exit 1
         ;;
     esac
 }
@@ -163,7 +160,7 @@ checkInput() {
 updateScript() {
     checkInstalled
     logMessage "info" "Downloading script..."
-    sudo curl -# -H 'Cache-Control: no-cache' -o /usr/bin/shellcam-cli https://raw.githubusercontent.com/Justus0405/ShellCam/main/shellcam-cli
+    sudo curl -# -o /usr/bin/shellcam-cli https://raw.githubusercontent.com/Justus0405/ShellCam/refs/heads/main/shellcam-cli
     sudo chmod +x /usr/bin/shellcam-cli
     logMessage "done" "Successfully updated $(basename "$0")"
 }
