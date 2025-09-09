@@ -79,10 +79,10 @@ checkArguments() {
         printVersion
         ;;
     "")
-        logMessage "error" "no operation specified. Use $(basename "$0") help"
+        logMessage "error" "No operation specified. Use $(basename "$0") help"
         ;;
     *)
-        logMessage "error" "unrecognized option '$1'. Use $(basename "$0") help"
+        logMessage "error" "Unrecognized option '$1'. Use $(basename "$0") help"
         ;;
     esac
 }
@@ -158,10 +158,10 @@ checkInput() {
         return
         ;;
     "")
-        logMessage "error" "no operation specified. Use $(basename "$0") help"
+        logMessage "error" "No operation specified. Use $(basename "$0") help"
         ;;
     *)
-        logMessage "error" "unrecognized option '$1'. Use $(basename "$0") help"
+        logMessage "error" "Unrecognized option '$1'. Use $(basename "$0") help"
         ;;
     esac
 }
