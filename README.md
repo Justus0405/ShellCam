@@ -38,10 +38,6 @@ shellcam-cli virtual start ~/Pictures/image.png
 
 ## Dependencies
 
-> [!TIP]
-> If you’re on Arch Linux,
-> consider using `v4l2loopback-dkms-git` from the AUR instead of `v4l2loopback-dkms`
-
 ```plaintext
 v4l2loopback-dkms
 ffmpeg
